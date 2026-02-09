@@ -1,0 +1,17 @@
+{
+  "name": "popn",
+  "version": "1.0.0",
+  "description": "The Human NASDAQ - Individual profile pages",
+  "main": "index.html",
+  "scripts": {
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": { "ws": "^8.18.0" },
+  "keywords": [
+    "popn",
+    "human-nasdaq",
+    "profile-pages"
+  ],
+  "author": "POPN Team",
+  "license": "MIT"
+}
