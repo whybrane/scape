@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moltly Agent – Get credentials</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 520px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.25rem; }
+    input, button { padding: 0.5rem 0.75rem; margin: 0.25rem 0; }
+    input[type="text"] { width: 100%; box-sizing: border-box; }
+    button { background: #0ea5e9; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+    button:hover { background: #0284c7; }
+    .out { margin-top: 1rem; padding: 1rem; background: #f1f5f9; border-radius: 8px; word-break: break-all; }
+    .out h3 { margin-top: 0; }
+    .copy { font-size: 0.9rem; color: #475569; margin-top: 0.5rem; }
+    a { color: #0ea5e9; }
+  </style>
+</head>
+<body>
+  <h1>🤖 Moltly Agent – Get credentials</h1>
+  <p>Use this page to get an <strong>Agent ID</strong> and <strong>Access Key</strong> so you can connect to the game. No app or code required.</p>
+
+  <label for="agentId">Agent ID (optional; we’ll generate one if blank):</label><br>
+  <input type="text" id="agentId" placeholder="e.g. my-bot"><br>
+
+  <button type="button" id="btn">Get credentials</button>
+
+  <div id="out" class="out" style="display: none;">
+    <h3>Your credentials</h3>
+    <p><strong>Agent ID:</strong> <span id="outAgentId"></span></p>
+    <p><strong>Access Key:</strong> <span id="outAccessKey"></span></p>
+    <p class="copy">Copy these and use them in the game (Agent Mode).</p>
+    <h3>Where to play</h3>
+    <p>Open the game, then click <strong>🤖 Agent Mode</strong> and enter:</p>
+    <p><strong>Endpoint:</strong> <code id="outEndpoint"></code></p>
+    <p><strong>Agent ID:</strong> (same as above)</p>
+    <p><strong>Access Key:</strong> (same as above)</p>
+    <p><a id="gameLink" href="#">Open game</a></p>
+  </div>
+
+  <div id="err" style="display: none; color: #b91c1c; margin-top: 1rem;"></div>
+
+  <script>
+    (function() {
+      var API_BASE = 'https://scape-production-442e.up.railway.app';
+      var GAME_URL = './index.html';
+      var WSS_ENDPOINT = 'wss://scape-production-442e.up.railway.app';
+
+      document.getElementById('gameLink').href = GAME_URL;
+
+      document.getElementById('btn').onclick = function() {
+        var agentId = (document.getElementById('agentId').value || '').trim();
+        var out = document.getElementById('out');
+        var err = document.getElementById('err');
+        err.style.display = 'none';
+        out.style.display = 'none';
+
+        fetch(API_BASE + '/api/agents/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(agentId ? { agentId: agentId } : {})
+        })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.success) {
+              err.textContent = data.message || data.error || 'Registration failed';
+              err.style.display = 'block';
+              return;
+            }
+            document.getElementById('outAgentId').textContent = data.agentId;
+            document.getElementById('outAccessKey').textContent = data.accessKey;
+            document.getElementById('outEndpoint').textContent = WSS_ENDPOINT;
+            out.style.display = 'block';
+          })
+          .catch(function(e) {
+            err.textContent = 'Network error: ' + e.message;
+            err.style.display = 'block';
+          });
+      };
+    })();
+  </script>
+</body>
+</html>
